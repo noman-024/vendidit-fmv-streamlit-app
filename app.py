@@ -34,13 +34,13 @@ if "steps_completed" not in st.session_state:
 if "file_paths" not in st.session_state:
     st.session_state["file_paths"] = {}
 
-# Reset Workflow
-if st.button("Reset Workflow"):
-    for key in ["steps_completed", "file_paths"]:
-        if key in st.session_state:
-            del st.session_state[key]
-    st.experimental_set_query_params()  # Reset URL query parameters
-    st.stop()
+# # Reset Workflow
+# if st.button("Reset Workflow"):
+#     for key in ["steps_completed", "file_paths"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+#     st.experimental_set_query_params()  # Reset URL query parameters
+#     st.stop()
 
 # Streamlit App Title
 st.title("Vendidit - GlobalSKU FMV")
