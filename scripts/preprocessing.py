@@ -1,11 +1,14 @@
 import json
 from openai import OpenAI
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
 import logging
 import pandas as pd
 import chardet
 from concurrent.futures import ThreadPoolExecutor
+import streamlit as st
+
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 
 
 def detect_file_encoding(file_path):
@@ -22,9 +25,9 @@ def detect_file_encoding(file_path):
         result = chardet.detect(f.read())
         return result["encoding"]
 
-# Load environment variables
-load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
+# # Load environment variables
+# load_dotenv()
+# openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Unified log file path
 log_file = os.path.abspath("data/logs/log.log")
