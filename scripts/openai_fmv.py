@@ -7,15 +7,16 @@ from difflib import get_close_matches
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
+import streamlit as st
+
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 
 
 # # Load environment variables
 # load_dotenv()
 # openai_api_key = os.getenv("OPENAI_API_KEY")
 
-import streamlit as st
 
-openai_api_key = st.secrets["OPENAI_API_KEY"]
 
 if not openai_api_key:
     raise ValueError("OPENAI_API_KEY is not set in the environment.")

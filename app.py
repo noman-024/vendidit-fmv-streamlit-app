@@ -73,6 +73,7 @@ def save_file(dataframe, file_path):
 
 # Step 1: File Upload
 st.header("Step 1: Upload Input File")
+st.write("Upload a CSV or Excel file containing product data. Ensure the file has columns like product name, brand, specifications, and other relevant details. This file will be used to predict FMV values.")
 if not st.session_state["steps_completed"]["step_1"]:
     uploaded_file = st.file_uploader("Choose a CSV or Excel file", type=["csv", "xlsx"])
     if uploaded_file:
@@ -86,8 +87,15 @@ if not st.session_state["steps_completed"]["step_1"]:
         st.session_state["steps_completed"]["step_1"] = True
 
 if st.session_state["steps_completed"]["step_1"]:
+    uploaded_df = load_file(st.session_state["file_paths"]["input_path"])
+    if uploaded_df is not None:
+        st.write("Preview of Uploaded File:")
+        st.dataframe(uploaded_df)
+
+if st.session_state["steps_completed"]["step_1"]:
     # Step 2: Preprocessing
     st.header("Step 2: Preprocess File")
+    st.write("In this step, the application analyzes your file to create a dynamic \"query column\" by concatenating relevant product attributes. This column will be used for FMV predictions.")
     if not st.session_state["steps_completed"]["step_2"]:
         if st.button("Start Preprocessing"):
             start_time = time.time()
@@ -112,6 +120,7 @@ if st.session_state["steps_completed"]["step_1"]:
 if st.session_state["steps_completed"]["step_2"]:
     # Step 3: OpenAI FMV Prediction
     st.header("Step 3: Predict Prices using OpenAI")
+    st.write("FMV (Fair Market Valuation) estimates the price of a product based on its condition and marketplace trends. In this step, OpenAI is used to predict \"New\" and \"Used\" product prices based on the query column.")
     if not st.session_state["steps_completed"]["step_3"]:
         if st.button("Start OpenAI Prediction"):
             start_time = time.time()
@@ -139,6 +148,7 @@ if st.session_state["steps_completed"]["step_2"]:
 if st.session_state["steps_completed"]["step_3"]:
     # Step 4: Vendidit FMV Prediction
     st.header("Step 4: Predict Prices using Vendidit FMV API")
+    st.write("This step refines the FMV predictions by predicting prices for various product conditions (e.g., \"New\", \"Used\", \"Refurbished\") using the Vendidit API.")
     if not st.session_state["steps_completed"]["step_4"]:
         if st.button("Start Vendidit Prediction"):
             start_time = time.time()
@@ -166,6 +176,7 @@ if st.session_state["steps_completed"]["step_3"]:
 if st.session_state["steps_completed"]["step_4"]:
     # Step 5: Fetch Marketplace Data
     st.header("Step 5: Fetch Marketplace Data")
+    st.write("In this step, data from marketplaces like Amazon and eBay is fetched to compare FMV predictions with real-world prices. This provides insights into market trends.")
     if not st.session_state["steps_completed"]["step_5"]:
         if st.button("Fetch Marketplace Data"):
             start_time = time.time()
@@ -201,6 +212,7 @@ if st.session_state["steps_completed"]["step_5"]:
 
         # Visualization
         st.write("### Visualization and Insights")
+        st.write("This final step aggregates all the data and presents visual insights, including comparisons of FMV predictions with marketplace prices. It helps in understanding pricing trends.")
         st.subheader("Comparison of Avg Market Price and Vendidit FMV")
         bar_chart_data = aggregated_data[['condition', 'currency', 'avg_market_price', 'vendidit_fmv']].copy()
         bar_chart_data = bar_chart_data.melt(id_vars=['condition', 'currency'], var_name='Metric', value_name='Price')
