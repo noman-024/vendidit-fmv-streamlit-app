@@ -39,6 +39,70 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+# def generate_dynamic_columns(df, max_rows=5):
+#     """
+#     Use OpenAI to analyze the input dataframe and suggest columns for concatenation.
+
+#     Args:
+#         df (pd.DataFrame): The input dataframe.
+#         max_rows (int): Number of sample rows to include in the analysis.
+
+#     Returns:
+#         list: Suggested columns for concatenation.
+#     """
+#     logging.info("Starting column suggestion using OpenAI.")
+#     logging.info(f"DataFrame Columns: {df.columns.tolist()}")
+    
+#     # Prepare a sample of the data
+#     sample_data = df.head(max_rows).to_dict(orient="records")
+    
+#     # Convert Timestamp objects to strings
+#     for row in sample_data:
+#         for key, value in row.items():
+#             if isinstance(value, pd.Timestamp):
+#                 row[key] = value.isoformat()  # Convert to ISO 8601 string format
+    
+#     logging.info(f"Sample Data: {sample_data}")
+
+#     # Initialize OpenAI client
+#     client = OpenAI(api_key=openai_api_key)
+
+#     # Prepare the prompt
+#     column_names = df.columns.tolist()
+#     # print(f"column_names: {column_names}")
+#     sample_data = df.head(max_rows).to_dict(orient="records")
+#     prompt = (
+#         f"You are an expert in analyzing product datasets for e-commerce platforms like Amazon and eBay.\n\n"
+#         f"### Column Names ###\n{column_names}\n\n"
+#         f"### Sample Data ###\n{json.dumps(sample_data, indent=2)}\n\n"
+#         f"### Task ###\n"
+#         f"Identify and suggest the most relevant columns to concatenate into a single query column that describes "
+#         f"the product completely and accurately. Ensure to include:\n"
+#         f"- Brand or make names.\n"
+#         f"- Product models and titles.\n"
+#         f"- Numerical features such as RAM, storage, or size that add specificity to the query.\n\n"
+#         f"- If multiple columns represent the same information, then select only one column name among them. \n\n"
+#         f"Your response should strictly follow this format:\n[\"column1\", \"column2\", \"column3\"]."
+#     )
+
+#     try:
+#         # Call the OpenAI API
+#         response = client.chat.completions.create(
+#             model="gpt-4",
+#             messages=[{"role": "user", "content": prompt}],
+#             timeout=120  # Increase the timeout to 120 seconds
+#         )
+#         logging.info(f"OpenAI response: {response}")
+
+#         # Parse the response
+#         suggested_columns = json.loads(response.choices[0].message.content.strip())
+#         if not isinstance(suggested_columns, list):
+#             raise ValueError("Response is not a valid JSON array.")
+#         return suggested_columns
+#     except Exception as e:
+#         logging.error(f"Error in OpenAI response: {e}")
+#         raise ValueError(f"Error decoding OpenAI response: {e}")
+
 def generate_dynamic_columns(df, max_rows=5):
     """
     Use OpenAI to analyze the input dataframe and suggest columns for concatenation.
@@ -52,15 +116,20 @@ def generate_dynamic_columns(df, max_rows=5):
     """
     logging.info("Starting column suggestion using OpenAI.")
     logging.info(f"DataFrame Columns: {df.columns.tolist()}")
-    logging.info(f"Sample Data: {df.head(max_rows).to_dict(orient='records')}")
 
-    # Initialize OpenAI client
-    client = OpenAI(api_key=openai_api_key)
-
-    # Prepare the prompt
-    column_names = df.columns.tolist()
-    # print(f"column_names: {column_names}")
+    # Prepare a sample of the data
     sample_data = df.head(max_rows).to_dict(orient="records")
+
+    # Convert Timestamp objects to strings
+    for row in sample_data:
+        for key, value in row.items():
+            if isinstance(value, pd.Timestamp):
+                row[key] = value.isoformat()  # Convert to ISO 8601 string format
+
+    logging.info(f"Sample Data: {sample_data}")
+
+    # Prepare the OpenAI prompt
+    column_names = df.columns.tolist()
     prompt = (
         f"You are an expert in analyzing product datasets for e-commerce platforms like Amazon and eBay.\n\n"
         f"### Column Names ###\n{column_names}\n\n"
@@ -71,16 +140,16 @@ def generate_dynamic_columns(df, max_rows=5):
         f"- Brand or make names.\n"
         f"- Product models and titles.\n"
         f"- Numerical features such as RAM, storage, or size that add specificity to the query.\n\n"
-        f"- If multiple columns represent the same information, then select only one column name among them. \n\n"
         f"Your response should strictly follow this format:\n[\"column1\", \"column2\", \"column3\"]."
     )
 
+    # Call the OpenAI API
+    client = OpenAI(api_key=openai_api_key)
     try:
-        # Call the OpenAI API
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
-            timeout=120  # Increase the timeout to 120 seconds
+            timeout=120  # Increase timeout if needed
         )
         logging.info(f"OpenAI response: {response}")
 
@@ -91,7 +160,8 @@ def generate_dynamic_columns(df, max_rows=5):
         return suggested_columns
     except Exception as e:
         logging.error(f"Error in OpenAI response: {e}")
-        raise ValueError(f"Error decoding OpenAI response: {e}")
+        raise ValueError(f"Error generating dynamic columns: {e}")
+
 
 def clean_excel_data(df):
     """
